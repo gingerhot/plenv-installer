@@ -8,7 +8,7 @@ This tool installs [plenv](https://github.com/tokuhirom/plenv) and friends. It i
 
 Once prerequisites have been installed correctly:
 
-Install:
+#### Install
 
 ```shell
 $ curl -L https://github.com/gingerhot/plenv-installer/raw/master/bin/plenv-installer | bash
@@ -23,11 +23,11 @@ You can now begin using plenv.
 
 If you need, export USE_GIT_URI to use git:// instead of https:// for git clone.
 
-Update:
+#### Update
 
 see [here](https://github.com/tokuhirom/plenv#upgrading).
 
-Uninstall:
+#### Uninstall
 
 plenv is installed within $PLENV_ROOT (default: ~/.plenv). To uninstall, just remove it:
 
