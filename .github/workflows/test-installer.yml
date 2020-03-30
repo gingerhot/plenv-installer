@@ -1,0 +1,16 @@
+name: Test plenv-installer
+
+on: push
+
+jobs:
+  update_versions:
+    runs-on: ubuntu-latest
+    name: A job to test plenv-installer
+    steps:
+    - name: Install Perl and dependencies
+      run: |
+        curl -L https://github.com/gingerhot/plenv-installer/raw/master/bin/plenv-installer | bash
+        export PATH=$HOME/.plenv/bin:$PATH
+        plenv install 5.18.0
+        plenv global 5.18.0
+        plenv version | grep '^5.18.0'
