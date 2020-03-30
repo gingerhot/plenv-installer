@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+
+set -e
+[ -n "$PLENV_DEBUG" ] && set -x
+
+if [ -z "$PLENV_ROOT" ]; then
+    PLENV_ROOT="${HOME}/.plenv"
+fi
+
+colorize() {
+  if [ -t 1 ]; then printf "\e[%sm%s\e[m" "$1" "$2"
+  else echo -n "$2"
+  fi
+}
+
+# Checks for `.plenv` file, and suggests to remove it for installing
+if [ -d "${PLENV_ROOT}" ]; then
+  { echo
+    colorize 1 "WARNING"
+    echo ": Can not proceed with installation. Kindly remove the '${PLENV_ROOT}' directory first."
+    echo
+  } >&2
+    exit 1
+fi
+
+shell="$1"
+if [ -z "$shell" ]; then
+  shell="$(ps c -p "$PPID" -o 'ucomm=' 2>/dev/null || true)"
+  shell="${shell##-}"
+  shell="${shell%% *}"
+  shell="$(basename "${shell:-$SHELL}")"
+fi
+
+failed_checkout() {
+  echo "Failed to git clone $1"
+  exit -1
+}
+
+checkout() {
+  [ -d "$2" ] || git clone --depth 1 "$1" "$2" || failed_checkout "$1"
+}
+
+if ! command -v git 1>/dev/null 2>&1; then
+  echo "plenv: Git is not installed, can't continue." >&2
+  exit 1
+fi
+
+if [ -n "${USE_GIT_URI}" ]; then
+  GITHUB="git://github.com"
+else
+  GITHUB="https://github.com"
+fi
+
+checkout "${GITHUB}/tokuhirom/plenv.git"        "${PLENV_ROOT}"
+checkout "${GITHUB}/tokuhirom/Perl-Build.git"   "${PLENV_ROOT}/plugins/perl-build/"
+
+if ! command -v plenv 1>/dev/null; then
+  { echo
+    colorize 1 "WARNING"
+    echo ": seems you still have not added 'plenv' to the load path."
+    echo
+  } >&2
+
+  case "$shell" in
+  bash )
+    profile="~/.bashrc"
+    ;;
+  zsh )
+    profile="~/.zshrc"
+    ;;
+  ksh )
+    profile="~/.profile"
+    ;;
+  fish )
+    profile="~/.config/fish/config.fish"
+    ;;
+  * )
+    profile="your profile"
+    ;;
+  esac
+
+  { echo "# Load plenv automatically by adding"
+    echo "# the following to ${profile}:"
+    echo
+    case "$shell" in
+    fish )
+      echo "set -x PATH \"${PLENV_ROOT}/bin\" \$PATH"
+      echo 'status --is-interactive; and . (plenv init -|psub)'
+      ;;
+    * )
+      echo "export PATH=\"${PLENV_ROOT}/bin:\$PATH\""
+      echo "eval \"\$(plenv init -)\""
+      ;;
+    esac
+  } >&2
+fi
