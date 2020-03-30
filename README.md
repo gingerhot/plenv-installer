@@ -1,5 +1,7 @@
 # plenv installer
 
+![](https://github.com/gingerhot/plenv-installer/workflows/Test%20plenv-installer/badge.svg)
+
 This tool installs [plenv](https://github.com/tokuhirom/plenv) and friends. It is copied from [pyenv installer](https://github.com/pyenv/pyenv-installer/blob/master/bin/pyenv-installer).
 
 ## Prerequisites
